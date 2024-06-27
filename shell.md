@@ -339,7 +339,7 @@ Notice that instead of printing the value of $USER, single quotes cause the term
 | > 	| Redirect output to file, overwrite |
 | >> 	| Redirect output to file, append |
 | 2> 	| Redirect standard error to file, overwrite |
-| 2>> | Redirect standard error to file, append |
+| 2>>   | Redirect standard error to file, append |
 | < 	| Redirect file contents to standard input |
 
 Input/output (IO) redirection is the process of directing the flow of data between a program and its input/output sources.
@@ -595,7 +595,7 @@ By using indexing, you can access individual or multiple elements of an array:
 
     Tip: Note that array indexing starts from 0, not from 1.
 
-### for loops
+## for loops
 
 You can use a construct called a for loop along with indexing to iterate over all elements of an array.
 
@@ -647,33 +647,6 @@ You can use for loops to accomplish all sorts of things. For example, you could 
 ```
 
 ---
-
-## Summary & Highlights
-
-    A shell script is a program that begins with a ‘shebang’ directive and is used to run commands and programs. Scripting languages are interpreted rather than compiled.
-
-    Filters are shell commands. The pipe operator `|` allows you to chain filter commands. 
-
-    Shell variables can be assigned values with `=` and listed using `set.` Environment variables are shell variables with extended scope, and you can list them with `env.`
-
-    Metacharacters are special characters that have meaning to the shell.
-
-    Quoting specifies whether the shell should interpret special characters as metacharacters or 'escape' them.
-
-    Input/Output, or I/O redirection, refers to a set of features used for redirecting.
-
-    You can use command substitution to replace a command with its output.
-
-    Command line arguments provide a way to pass arguments to a shell script.
-
-    In concurrent mode, multiple commands can run simultaneously.
-
-    You can schedule cron jobs to run periodically at selected times. `m h dom mon dow command` is the cron job syntax.
-
-    You can edit cron jobs by running `crontab -e,` and `crontab -l` lists all cron jobs in the cron table.
-
----
-
 
 
 ## Cheat Sheet
@@ -1028,4 +1001,178 @@ Use array indexing within a for loop, assuming the array has seven elements:
     for i in {0..6}; do
         echo ${my_array[$i]}
     done
+```
+
+---
+
+## Examples
+
+### 1. Create a Bash script file and make it executable.
+
+```shell
+echo '#!/bin/bash' > bash_script.sh
+chmod u+x bash_script.sh
+```
+
+### 2. Using conditional statements and logical operators
+    Create a simple Bash script containing a conditional statement to handle the following tasks: 
+
+```shell
+#!/bin/bash
+
+echo 'Do you like Bash scripting?'
+echo -n "Enter \"y\" for yes, \"n\" for no"
+read response
+
+if [ "$response" == "y" ]
+then
+    echo "Great!"
+elif [ "$response" = "n" ]
+then
+   echo "Sorry!"
+else
+   echo "Your response must be either 'y' or 'n'."
+   echo "Please re-run the script to try again."
+fi
+```
+
+### 3. Performing basic mathematical calculations and numerical logical comparisons
+    Create a Bash script that performs basic arithmetic calculations on two integers entered by the user. 
+    Use logical comparisons to determine which calculation leads to the greatest result.
+
+```shell
+#!/bin/bash
+
+echo -n "Enter an integer: "
+read n1
+echo -n "Enter another integer: "
+read n2
+
+sum=$(($n1+$n2))
+product=$(($n1*$n2))
+
+echo "The sum of $n1 and $n2 is $sum"
+echo "The product of $n1 and $n2 is $product."
+
+if [ $sum -lt $product ]
+then
+   echo "The sum is less than the product."
+elif [[ $sum == $product ]]
+then
+   echo "The sum is equal to the product."
+elif [ $sum -gt $product ]
+then
+   echo "The sum is greater than the product."
+fi
+```
+
+### 4. Using arrays for storing and accessing data within for loops
+    Create a report based on a supplied dataset using the CSV format. 
+    Extract the columns of the dataset into separate arrays and create a new column using arithmetic and array logic.
+    Combine the dataset with the new column and save the resulting report as a CSV file.
+
+    Download the CSV data
+```shell
+csv_file="URL_Address"
+wget $csv_file
+```
+
+    Display the CSV file to understand what it looks like
+```shell
+cat arrays_table.csv
+```
+
+```shell
+#!/bin/bash
+
+csv_file="./arrays_table.csv"
+
+# parse table columns into 3 arrays
+column_0=($(cut -d "," -f 1 $csv_file))
+column_1=($(cut -d "," -f 2 $csv_file))
+column_2=($(cut -d "," -f 3 $csv_file))
+
+# print first array
+echo "Displaying the first column:"
+echo "${column_0[@]}"
+
+## Create a new array as the difference of columns 1 and 2
+# initialize array with header
+column_3=("column_3")
+
+# get the number of lines in each column
+nlines=$(cat $csv_file | wc -l)
+echo "There are $nlines lines in the file"
+
+# populate the array
+for ((i=1; i<$nlines; i++)); do
+  column_3[$i]=$((column_2[$i] - column_1[$i]))
+done
+echo "${column_3[@]}"
+
+## Combine the new array with the csv file
+# first write the new array to file
+# initialize the file with a header
+echo "${column_3[0]}" > column_3.txt
+for ((i=1; i<nlines; i++)); do
+  echo "${column_3[$i]}" >> column_3.txt
+done
+paste -d "," $csv_file column_3.txt > report.csv
+```
+
+---
+
+## Project: Historical Weather Forecast Comparison to Actuals
+
+    1. Create report log and add a header
+```shell
+touch rx_poc.log
+echo -e "year\tmonth\tday\thour\tobs_tmp\tfc_temp">rx_poc.log
+```
+
+    2. Write a bash script that downloads the raw weather data, and extracts and loads the required data
+```shell
+#! /bin/bash
+
+# create a datestamped filename for the raw wttr data:
+today=$(date +%Y%m%d)
+weather_report=raw_data_$today
+
+# download today's weather report from wttr.in:
+city=Casablanca
+curl wttr.in/$city --output $weather_report
+
+# use command substitution to store the current day, month, and year in corresponding shell variables:
+hour=$(TZ='Morocco/Casablanca' date -u +%H) 
+day=$(TZ='Morocco/Casablanca' date -u +%d) 
+month=$(TZ='Morocco/Casablanca' date +%m)
+year=$(TZ='Morocco/Casablanca' date +%Y)
+
+# extract all lines containing temperatures from the weather report and write to file
+grep °C $weather_report > temperatures.txt
+
+# extract the current temperature 
+obs_tmp=$(head -1 temperatures.txt | tr -s " " | xargs | rev | cut -d " " -f2 | rev)
+
+# extract the forecast for noon tomorrow
+fc_temp=$(head -3 temperatures.txt | tail -1 | tr -s " " | xargs | cut -d "C" -f2 | rev | cut -d " " -f2 |rev)
+
+# create a tab-delimited record
+# recall the header was created as follows:
+# header=$(echo -e "year\tmonth\tday\thour_UTC\tobs_tmp\tfc_temp")
+# echo $header>rx_poc.log
+
+record=$(echo -e "$year\t$month\t$day\t$obs_tmp\t$fc_temp")
+# append the record to rx_poc.log
+echo $record>>rx_poc.log
+```
+
+    3. Make the script exacutable
+```shell
+chmod u+x rx_poc.sh
+```
+
+---
+
+```shell
 ```
