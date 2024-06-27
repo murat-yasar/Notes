@@ -1174,5 +1174,81 @@ chmod u+x rx_poc.sh
 
 ---
 
+ ## Project: Backup Shell Script
+ 
+    Create a shell script called which runs every day and automatically backs up any encrypted password files that have been updated in the past 24 hours.
 ```shell
+#!/bin/bash
+
+# Check if the number of arguments is correct
+if [[ $# != 2 ]]; then
+  echo "Usage: $0 target_directory_name destination_directory_name"
+  exit 1
+fi
+
+# Check if argument 1 and argument 2 are valid directory paths
+if [[ ! -d $1 ]] || [[ ! -d $2 ]]; then
+  echo "Invalid directory path provided"
+  exit 1
+fi
+
+# Variables for directories
+targetDirectory="$1"
+destinationDirectory="$2"
+
+# Print directories
+echo "Target Directory: $targetDirectory"
+echo "Destination Directory: $destinationDirectory"
+
+# Current timestamp
+currentTS=$(date +%s)
+
+# Save original working directory
+origAbsPath=$(pwd)
+
+# Change to target directory
+if ! cd "$origAbsPath/$targetDirectory"; then
+  echo "Error: Unable to change directory to $targetDirectory"
+  exit 1
+fi
+
+# Timestamp for 24 hours ago
+yesterdayTS=$(( currentTS - 86400 ))
+
+# Array to store files to backup
+toBackup=()
+
+# Iterate over files in target directory
+for file in *; do
+  if [[ -f $file ]] && (( $(date -r $file +%s) > yesterdayTS )); then
+    toBackup+=("$file")
+  fi
+done
+
+# Check if there are files to backup
+if [[ ${#toBackup[@]} -gt 0 ]]; then
+  # Create tar.gz archive in current directory
+  cd "$origAbsPath"  # Return to original directory
+  if ! tar -czvf "$backupFileName" -C "$targetDirectory" "${toBackup[@]}"; then
+    echo "Error: Failed to create backup archive"
+    exit 1
+  fi
+  echo "Backup archive created: $backupFileName"
+else
+  echo "No files to backup within the last 24 hours."
+  exit 0  # Exit gracefully if no files need to be backed up
+fi
+
+# Move backup archive to destination directory
+if ! mv "$backupFileName" "$destinationDirectory/"; then
+  echo "Error: Failed to move backup archive to $destinationDirectory/"
+  exit 1
+fi
+echo "Backup archive moved to: $destinationDirectory/$backupFileName"
+
+# Script execution completed successfully
+echo "Backup process completed successfully."
+exit 0
+
+
 ```
