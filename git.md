@@ -36,6 +36,68 @@ $ git config --global user.email "[email]"
 > Set an Email address.
 
 
+## STAGE & COMMIT
+
+### git status
+```sh
+$ git status
+```
+> Show modified files in the working directory, staged for the next commit.
+
+### git add
+```sh
+$ git add [file-name]
+```
+> Add (stage) a file for the next commit.
+
+### git add .
+```sh
+$ git add .
+```
+> Add all changed files to the staging area.
+
+### git commit -m
+```sh
+$ git commit -m "[commit-message]"
+```
+> Commit your stagedc ontent as a new commit snapshot.
+
+### git reset
+```sh
+$ git reset
+```
+> Reset staging area to match most recent commit, but leave the working directory unchanged. 
+
+### git reset --hard
+```sh
+$ git reset --hard
+```
+> Reset staging area and the working directory to match most recent commit and overwrites all changes in the working directory. 
+
+### git revert <commit>
+```sh
+$ git revert <commit>
+```
+> Create a new commit that undoes all of the changes made in, then apply it to the current branch.
+
+### git stash
+```sh
+$ git stash
+```
+> Put current changes from your working directory into stash for later use.
+
+### git stash pop
+```sh
+$ git stash pop
+```
+> Apply stored stash content into the working directory, and clear the stash.
+
+### git stash drop
+```sh
+$ git stash drop
+```
+> Deletea specific stash from all your previous stashes.
+
 
 ## BRANCHES
 
@@ -63,40 +125,6 @@ $ git branch -d [branch-name]
 ```
 > Deletes the specified branch.
 
-
-
-## STAGE
-
-### git status
-```sh
-$ git status
-```
-> Show modified files in the working directory, staged for the next commit.
-
-### git add
-```sh
-$ git add [file-name]
-```
-> Add (stage) a file for the next commit.
-
-### git add .
-```sh
-$ git add .
-```
-> Add all changed files to the staging area.
-
-
-## COMMIT
-
-### git commit -m
-```sh
-$ git commit -m "[commit-message]"
-```
-> Commit your stagedc ontent as a new commit snapshot.
-
-
-## PULL & PUSH
-
 ### git pull origin <branch_name>
 ```sh
 $ git pull origin <branch_name>
@@ -114,5 +142,15 @@ $ git push origin <branch_name>
 ```sh
 $ git fetch
 ```
-> Synchronizey the local repository with the remote repository on GitHub.
+> Synchronize the local repository with the remote repository on GitHub.
+
+### git merge
+```sh
+$ git merge <branch_name>
+```
+> Merge <branch> into the current branch.
+
+
+
+
 
